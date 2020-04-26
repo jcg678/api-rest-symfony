@@ -28,23 +28,23 @@ class UserController extends AbstractController
         $user = $user_repo->find(1);
         $videos= $video_repo->findAll();
 
-        /*foreach ($users as $user){
-                echo "<h1>{$user->getName()} {$user->getSurname()}</h1>";
-                foreach ($user->getVideos() as $video){
-                    echo "<h2>{$video->getTitle()}</h2>";
-                }
-            }
 
-        foreach ($videos as $video){
-            echo "<h1>{$video->getTitle()} {$video->getUser()->getEmail()}</h1>";
-
-        }*/
         $data = [
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/UserController.php',
         ];
 
-        //die();
+
+        return $this->resjson($data);
+    }
+
+    public function create(Request $request){
+        $data = [
+            'status'=>'error',
+            'code'  => 200,
+            'message'=> 'El usuario no se ha creado'
+        ];
+
         return $this->resjson($data);
     }
 }
