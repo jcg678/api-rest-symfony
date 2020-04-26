@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Entity\Video;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserController extends AbstractController
 {
@@ -39,12 +40,17 @@ class UserController extends AbstractController
     }
 
     public function create(Request $request){
+        $json = $request->get('json', null);
+
+        $params = json_decode($json);
+
         $data = [
             'status'=>'error',
             'code'  => 200,
-            'message'=> 'El usuario no se ha creado'
+            'message'=> 'El usuario no se ha creado',
+            'json' => $params
         ];
 
-        return $this->resjson($data);
+        return new JsonResponse($data);
     }
 }
