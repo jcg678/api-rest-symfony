@@ -64,11 +64,45 @@ class UserController extends AbstractController
             ]);
 
             if(!empty($email) && count($validate_email)== 0 && !empty($password) && !empty($name) && !empty($surname)){
-                $data = [
-                    'status'=>'success',
-                    'code'  => 200,
-                    'message'=> 'Validacion correcta',
-                ];
+                $user = new User();
+                $user->setName($name);
+                $user->setSurname($surname);
+                $user->setEmail($email);
+                $user->setRole('ROLE_USER');
+                $user->setCreatedAt(new \DateTime('now'));
+
+                $pwd = hash('sha256',$password);
+                $user->setPassword($pwd);
+
+                //$data = $user;
+
+                $doctrine = $this->getDoctrine();
+                $em = $doctrine->getManager();
+
+                $user_repo = $doctrine->getRepository(User::class);
+                $isset_user = $user_repo->findBy([
+                    'email' => $email
+                ]);
+
+                if(count($isset_user) == 0){
+                    $em->persist($user);
+                    $em->flush();
+
+                    $data = [
+                        'status'=>'success',
+                        'code'  => 200,
+                        'message'=> 'Usuario creado correctamente',
+                        'user'=>$user
+                    ];
+                }else{
+                    $data = [
+                        'status'=>'error',
+                        'code'  => 400,
+                        'message'=> 'El usuario ya existe',
+                    ];
+                }
+
+
             }else{
                 $data = [
                     'status'=>'success',
@@ -76,6 +110,9 @@ class UserController extends AbstractController
                     'message'=> 'Validacion incorrecta',
                 ];
             }
+
+
+
         }
 
         return new JsonResponse($data);
