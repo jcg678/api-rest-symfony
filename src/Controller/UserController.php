@@ -118,11 +118,44 @@ class UserController extends AbstractController
 
 
     public function login(Request $request){
+        $json = $request->get('json',null);
+        $params = json_decode($json);
+
         $data = [
-          'status'=> 'error',
-          'code' => 200,
-          'message' => 'login method'
+            'status'=> 'error',
+            'code' => 400,
+            'message' => 'faltan parametros'
         ];
+
+        if($json != null){
+            $email = (!empty($params->email)) ? $params->email : null;
+            $password = (!empty($params->password)) ? $params->password : null;
+            $gettoken = (!empty($params->gettoken)) ? $params->gettoken : null;
+
+            $validator = Validation::createValidator();
+            $validate_email = $validator->validate($email,[
+               new Email()
+            ]);
+
+            if(!empty($email) && !empty($password) && count($validate_email)==0){
+                $pwd = hash('sha256', $password);
+                $data = [
+                    'status'=> 'success',
+                    'code' => 200,
+                    'message' => 'Validacion correcta'
+                ];
+            }else{
+                $data = [
+                    'status'=> 'error',
+                    'code' => 200,
+                    'message' => 'Validacion incorrecta'
+                ];
+            }
+
+
+        }
+
+
 
         return $this->resjson($data);
     }
