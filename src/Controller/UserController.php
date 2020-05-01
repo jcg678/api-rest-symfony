@@ -111,10 +111,19 @@ class UserController extends AbstractController
                 ];
             }
 
-
-
         }
 
         return new JsonResponse($data);
+    }
+
+
+    public function login(Request $request){
+        $data = [
+          'status'=> 'error',
+          'code' => 200,
+          'message' => 'login method'
+        ];
+
+        return $this->resjson($data);
     }
 }
