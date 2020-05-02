@@ -141,12 +141,19 @@ class UserController extends AbstractController
             if(!empty($email) && !empty($password) && count($validate_email)==0){
                 $pwd = hash('sha256', $password);
 
-                $jwt_auth->signup();
+                if($gettoken){
+                    $signup = $jwt_auth->signup($email, $pwd, $gettoken);
+                }else{
+                    $signup = $jwt_auth->signup($email, $pwd);
+                }
+
+                return new JsonResponse($signup);
+                /*
                 $data = [
                     'status'=> 'success',
                     'code' => 200,
                     'message' => $jwt_auth->signup()
-                ];
+                ];*/
             }else{
                 $data = [
                     'status'=> 'error',
