@@ -148,12 +148,7 @@ class UserController extends AbstractController
                 }
 
                 return new JsonResponse($signup);
-                /*
-                $data = [
-                    'status'=> 'success',
-                    'code' => 200,
-                    'message' => $jwt_auth->signup()
-                ];*/
+
             }else{
                 $data = [
                     'status'=> 'error',
@@ -161,11 +156,16 @@ class UserController extends AbstractController
                     'message' => 'Validacion incorrecta'
                 ];
             }
-
-
         }
 
+        return $this->resjson($data);
+    }
 
+    public function edit(Request $request){
+        $data = [
+            'status'=> 'oc',
+            'message' =>'metodo update'
+        ];
 
         return $this->resjson($data);
     }
