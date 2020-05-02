@@ -161,16 +161,27 @@ class UserController extends AbstractController
         return $this->resjson($data);
     }
 
-    public function edit(Request $request){
+    public function edit(Request $request, JwtAuth $jwtAuth){
 
         $token = $request->headers->get('Authorization');
+
+
+        $authCheck = $jwtAuth->checkToken($token);
+
+        if($authCheck){
+
+        }
+
 
         $data = [
             'status'=> 'occc',
             'message' =>'metodo update',
-            'token' => $token
+            'token' => $token,
+            'authCheck'=>$authCheck
         ];
 
         return $this->resjson($data);
     }
+
+
 }
