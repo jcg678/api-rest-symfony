@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Email;
+use App\Services\JwtAuth;
 
 class UserController extends AbstractController
 {
@@ -117,7 +118,7 @@ class UserController extends AbstractController
     }
 
 
-    public function login(Request $request){
+    public function login(Request $request, JwtAuth $jwt_auth){
         $json = $request->get('json',null);
         $params = json_decode($json);
 
@@ -139,10 +140,12 @@ class UserController extends AbstractController
 
             if(!empty($email) && !empty($password) && count($validate_email)==0){
                 $pwd = hash('sha256', $password);
+
+                $jwt_auth->signup();
                 $data = [
                     'status'=> 'success',
                     'code' => 200,
-                    'message' => 'Validacion correcta'
+                    'message' => $jwt_auth->signup()
                 ];
             }else{
                 $data = [
