@@ -162,9 +162,13 @@ class UserController extends AbstractController
     }
 
     public function edit(Request $request){
+
+        $token = $request->headers->get('Authorization');
+
         $data = [
-            'status'=> 'oc',
-            'message' =>'metodo update'
+            'status'=> 'occc',
+            'message' =>'metodo update',
+            'token' => $token
         ];
 
         return $this->resjson($data);
