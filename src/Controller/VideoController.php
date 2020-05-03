@@ -129,13 +129,31 @@ class VideoController extends AbstractController
 
     public function video(Request $request, JwtAuth $jwtAuth, $id=null){
 
-
         $data =[
             'status'=>'error',
             'code'=> 404,
             'message'=>'No se se encuentra el video',
             'id'=>$id
         ];
+
+        $token = $request->headers->get('Authorization');
+        $authCheck= $jwtAuth->checkToken($token);
+
+        if($authCheck){
+            $identity = $jwtAuth->checkToken($token, true);
+            $video =$this->getDoctrine()->getRepository(Video::class)->findOneBy([
+                'id'=>$id
+            ]);
+
+            if($video && is_object($video) && $identity->sub == $video->getUser()->getId()){
+                $data =[
+                    'status'=>'success',
+                    'code'=> 200,
+                    'video'=>$video
+                ];
+            }
+
+        }
 
         return $this->resjson($data);
     }
