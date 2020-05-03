@@ -52,7 +52,7 @@ class JwtAuth{
 
     }
 
-    public function checkToken($jwt){
+    public function checkToken($jwt, $identity = false){
         $auth = false;
 
         try{
@@ -68,7 +68,13 @@ class JwtAuth{
             $auth = true;
         }
 
-        return $auth;
+        if($identity != false){
+            return $decoded;
+        }else{
+            return $auth;
+        }
+
+
 
     }
 }

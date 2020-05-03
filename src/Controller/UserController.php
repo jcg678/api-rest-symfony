@@ -168,17 +168,68 @@ class UserController extends AbstractController
 
         $authCheck = $jwtAuth->checkToken($token);
 
+        $data = [
+            'status'=> 'error',
+            'code'  => 400,
+            'message' =>'Usuario no actualizado',
+        ];
+
         if($authCheck){
+            $em = $this->getDoctrine()->getManager();
+            $identity = $jwtAuth->checkToken($token, true);
+
+            $user_repo= $this->getDoctrine()->getRepository(User::class);
+            $user = $user_repo->findOneBy([
+                'id'=>$identity->sub
+            ]);
+
+            $json = $request->get('json',null);
+            $params = json_decode($json);
+            if(!empty($json)){
+                    $name = (!empty($params->name)) ? $params->name : null;
+                    $surname = (!empty($params->surname)) ? $params->surname : null;
+                    $email = (!empty($params->email)) ? $params->email : null;
+
+
+                    $validator = Validation::createValidator();
+                    $validate_email = $validator->validate($email,[
+                        new Email()
+                    ]);
+
+                    if(!empty($email) && count($validate_email)== 0 && !empty($name) && !empty($surname)){
+                        $user->setEmail($email);
+                        $user->setName($name);
+                        $user->setSurname($surname);
+
+                        $isset_user = $user_repo->findBy([
+                            'email'=>$email
+                        ]);
+
+                        if(count($isset_user) == 0 || $identity->email == $email){
+                            $em->persist($user);
+                            $em->flush();
+
+                            $data = [
+                                'status'=> 'success',
+                                'code'  => 200,
+                                'message' =>'Usuario Actulizado correctamente',
+                                'user'=> $user
+                            ];
+                        }else{
+                            $data = [
+                                'status'=> 'error',
+                                'code'  => 400,
+                                'message' =>'Un usuario ya utiliza este email',
+                            ];
+
+                        }
+                    }
+            }
 
         }
 
 
-        $data = [
-            'status'=> 'occc',
-            'message' =>'metodo update',
-            'token' => $token,
-            'authCheck'=>$authCheck
-        ];
+
 
         return $this->resjson($data);
     }
