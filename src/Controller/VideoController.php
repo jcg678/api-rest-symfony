@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Email;
 use App\Services\JwtAuth;
+use Knp\Component\Pager\PaginatorInterface;
 
 class VideoController extends AbstractController
 {
@@ -86,12 +87,42 @@ class VideoController extends AbstractController
         return $this->resjson($data);
     }
 
-    public function videos(Request $request, JwtAuth $jwtAuth){
+    public function videos(Request $request, JwtAuth $jwtAuth, PaginatorInterface $paginator){
         $data =[
             'status'=>'error',
             'code'=> 404,
             'message'=>'No se pueden listar videos'
         ];
+
+        $token = $request->headers->get('Authorization');
+        $authCheck= $jwtAuth->checkToken($token);
+
+        if($authCheck){
+            $identy = $jwtAuth->checkToken($token, true);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $dql = "SELECT v FROM App\Entity\Video v WHERE v.user = {$identy->sub} ORDER BY v.id DESC";
+
+            $query = $em->createQuery($dql);
+
+            $page = $request->query->getInt('page',1);
+            $itemsPerPage = 5;
+            $pagination= $paginator->paginate($query, $page, $itemsPerPage);
+            $total = $pagination->getTotalItemCount();
+
+            $data =[
+                'status'=>'success',
+                'code'=> 200,
+                'total_items_count'=>$total,
+                'page_actual' => $page,
+                'items_per_page'=> $itemsPerPage,
+                'total_pages'=>ceil($total/$itemsPerPage),
+                'videos'=>$pagination,
+                'user'=>$identy->sub
+
+            ];
+        }
 
         return $this->resjson($data);
     }
