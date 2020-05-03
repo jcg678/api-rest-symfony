@@ -127,4 +127,17 @@ class VideoController extends AbstractController
         return $this->resjson($data);
     }
 
+    public function video(Request $request, JwtAuth $jwtAuth, $id=null){
+
+
+        $data =[
+            'status'=>'error',
+            'code'=> 404,
+            'message'=>'No se se encuentra el video',
+            'id'=>$id
+        ];
+
+        return $this->resjson($data);
+    }
+
 }
