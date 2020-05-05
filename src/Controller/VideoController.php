@@ -32,7 +32,7 @@ class VideoController extends AbstractController
         return $response;
     }
 
-    public function create(Request $request, JwtAuth $jwtAuth){
+    public function create(Request $request, JwtAuth $jwtAuth, $id = null){
         $data = [
             'status'=>'error',
             'code'=>400,
@@ -58,26 +58,52 @@ class VideoController extends AbstractController
                     $em = $this->getDoctrine()->getManager();
                     $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id'=>$user_id]);
 
-                    $video = new Video();
-                    $video->setUser($user);
-                    $video->setTitle($title);
-                    $video->setDescription($description);
-                    $video->setUrl($url);
-                    $video->setStatus('normal');
+                    if($id == null){
+                        $video = new Video();
+                        $video->setUser($user);
+                        $video->setTitle($title);
+                        $video->setDescription($description);
+                        $video->setUrl($url);
+                        $video->setStatus('normal');
 
-                    $dateNow = new \DateTime('now');
-                    $video->setCreatedAt($dateNow);
-                    $video->setUpdatedAt($dateNow);
+                        $dateNow = new \DateTime('now');
+                        $video->setCreatedAt($dateNow);
+                        $video->setUpdatedAt($dateNow);
 
-                    $em->persist($video);
-                    $em->flush();
+                        $em->persist($video);
+                        $em->flush();
 
-                    $data = [
-                        'status'=>'success',
-                        'code'=>200,
-                        'message'=>'El video se ha guardado',
-                        'video' => $video
-                    ];
+                        $data = [
+                            'status'=>'success',
+                            'code'=>200,
+                            'message'=>'El video se ha guardado',
+                            'video' => $video
+                        ];
+                    }else{
+                        $video = $this->getDoctrine()->getRepository(Video::class)->findOneBy([
+                           'id'=>$id,
+                            'user'=>$identity->sub
+                        ]);
+
+                        if($video && is_object($video)){
+                            $video->setUser($user);
+                            $video->setTitle($title);
+                            $video->setDescription($description);
+                            $video->setUrl($url);
+                            $dateNow = new \DateTime('now');
+                            $video->setUpdatedAt($dateNow);
+
+                            $em->persist($video);
+                            $em->flush();
+
+                            $data = [
+                                'status'=>'success',
+                                'code'=>200,
+                                'message'=>'El video se ha actulizado',
+                                'video' => $video
+                            ];
+                        }
+                    }
 
                 }
             }
